@@ -1,0 +1,116 @@
+<div class="page-header">
+  <h2>Entregas</h2>
+  <button mat-raised-button color="primary" (click)="openCreateForm()">
+    <mat-icon>add</mat-icon> Nova Entrega
+  </button>
+</div>
+
+<!-- Formulário de criação/edição -->
+<mat-card *ngIf="showForm" class="form-card">
+  <mat-card-title>{{ editingDelivery ? 'Editar Entrega' : 'Nova Entrega' }}</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="saveDelivery()" class="form-grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Endereço de Origem</mat-label>
+        <input matInput formControlName="origin_address" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Endereço de Destino</mat-label>
+        <input matInput formControlName="destination_address" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nome do Destinatário</mat-label>
+        <input matInput formControlName="recipient_name" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Telefone do Destinatário</mat-label>
+        <input matInput formControlName="recipient_phone" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Peso da Carga (kg)</mat-label>
+        <input matInput type="number" formControlName="cargo_weight_kg" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Veículo (opcional)</mat-label>
+        <mat-select formControlName="vehicle">
+          <mat-option [value]="null">Nenhum</mat-option>
+          <mat-option *ngFor="let v of vehicles" [value]="v.id">
+            {{ v.license_plate }} - {{ v.model }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="showForm = false">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          {{ editingDelivery ? 'Salvar Alterações' : 'Criar Entrega' }}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- Tabela de entregas -->
+<table mat-table [dataSource]="deliveries" class="mat-elevation-z2 full-width">
+
+  <ng-container matColumnDef="tracking_code">
+    <th mat-header-cell *matHeaderCellDef>Rastreio</th>
+    <td mat-cell *matCellDef="let d">{{ d.tracking_code }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="recipient_name">
+    <th mat-header-cell *matHeaderCellDef>Destinatário</th>
+    <td mat-cell *matCellDef="let d">{{ d.recipient_name }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="origin">
+    <th mat-header-cell *matHeaderCellDef>Origem</th>
+    <td mat-cell *matCellDef="let d">{{ d.origin_address }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="destination">
+    <th mat-header-cell *matHeaderCellDef>Destino</th>
+    <td mat-cell *matCellDef="let d">{{ d.destination_address }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let d">
+      <mat-chip [color]="statusColors[d.status]" highlighted>
+        {{ statusLabels[d.status] }}
+      </mat-chip>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Ações HATEOAS</th>
+    <td mat-cell *matCellDef="let d">
+      <!-- botão editar -->
+      <button mat-icon-button color="primary" title="Editar" (click)="openEditForm(d)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <!-- ações HATEOAS dinâmicas -->
+      <button
+        *ngFor="let action of getHateoasActions(d)"
+        mat-icon-button
+        [color]="action === 'cancel' ? 'warn' : 'primary'"
+        [title]="getActionLabel(action)"
+        (click)="executeAction(d, action)">
+        <mat-icon>{{ getActionIcon(action) }}</mat-icon>
+      </button>
+      <!-- botão remover -->
+      <button mat-icon-button color="warn" title="Remover" (click)="deleteDelivery(d.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

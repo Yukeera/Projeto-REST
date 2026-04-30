@@ -1,0 +1,112 @@
+<div class="page-header">
+  <h2>Veículos</h2>
+  <button mat-raised-button color="primary" (click)="openCreateForm()">
+    <mat-icon>add</mat-icon> Novo Veículo
+  </button>
+</div>
+
+<mat-card *ngIf="showForm" class="form-card">
+  <mat-card-title>{{ editingVehicle ? 'Editar Veículo' : 'Novo Veículo' }}</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="saveVehicle()" class="form-grid">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Placa</mat-label>
+        <input matInput formControlName="license_plate" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Modelo</mat-label>
+        <input matInput formControlName="model" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ano</mat-label>
+        <input matInput type="number" formControlName="year" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Capacidade de Carga (kg)</mat-label>
+        <input matInput type="number" formControlName="cargo_capacity_kg" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="available">Disponível</mat-option>
+          <mat-option value="in_use">Em uso</mat-option>
+          <mat-option value="maintenance">Em manutenção</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Motorista (opcional)</mat-label>
+        <mat-select formControlName="driver">
+          <mat-option [value]="null">Nenhum</mat-option>
+          <mat-option *ngFor="let d of drivers" [value]="d.id">
+            {{ d.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="showForm = false">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          {{ editingVehicle ? 'Salvar Alterações' : 'Criar Veículo' }}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<table mat-table [dataSource]="vehicles" class="mat-elevation-z2 full-width">
+
+  <ng-container matColumnDef="license_plate">
+    <th mat-header-cell *matHeaderCellDef>Placa</th>
+    <td mat-cell *matCellDef="let v">{{ v.license_plate }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="model">
+    <th mat-header-cell *matHeaderCellDef>Modelo</th>
+    <td mat-cell *matCellDef="let v">{{ v.model }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="year">
+    <th mat-header-cell *matHeaderCellDef>Ano</th>
+    <td mat-cell *matCellDef="let v">{{ v.year }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="capacity">
+    <th mat-header-cell *matHeaderCellDef>Capacidade (kg)</th>
+    <td mat-cell *matCellDef="let v">{{ v.cargo_capacity_kg }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let v">
+      <mat-chip [color]="statusColors[v.status]" highlighted>
+        {{ statusLabels[v.status] }}
+      </mat-chip>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="driver">
+    <th mat-header-cell *matHeaderCellDef>Motorista</th>
+    <td mat-cell *matCellDef="let v">{{ getDriverName(v.driver) }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Ações</th>
+    <td mat-cell *matCellDef="let v">
+      <button mat-icon-button color="primary" title="Editar" (click)="openEditForm(v)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" title="Remover" (click)="deleteVehicle(v.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.sqlite3
+
+# Django
+db.sqlite3
+
+# Node / Angular
+fleet-client/node_modules/
+fleet-client/dist/
+fleet-client/.angular/
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
